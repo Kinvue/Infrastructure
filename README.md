@@ -1,0 +1,1 @@
+Transfer this file into root folder, where you place all services. Make sure of its naming.

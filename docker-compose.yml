@@ -1,0 +1,77 @@
+services:
+  gateway:
+    build:
+      context: ./gateway
+      dockerfile: Dockerfile.dev
+    container_name: gateway
+    command: npm run start:dev
+    ports:
+      - "3000:3000"
+    env_file:
+      - ./gateway/.env
+    volumes:
+      - ./gateway:/app
+      - /app/node_modules
+    depends_on:
+      - auth-service
+      - user-service
+
+  auth-service:
+    build:
+      context: ./auth-service
+      dockerfile: Dockerfile.dev
+    container_name: auth-service
+    command: npm run start:dev
+    ports:
+      - "50051:50051"
+    env_file:
+      - ./auth-service/.env
+    volumes:
+      - ./auth-service:/app
+      - /app/node_modules
+    depends_on:
+      - auth-db
+
+  user-service:
+    build:
+      context: ./user-service
+      dockerfile: Dockerfile.dev
+    container_name: user-service
+    command: npm run start:dev
+    ports:
+      - "50052:50052"
+    env_file:
+      - ./user-service/.env
+    volumes:
+      - ./user-service:/app
+      - /app/node_modules
+    depends_on:
+      - user-db
+
+  auth-db:
+    image: postgres:16
+    container_name: auth-db
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: auth_db
+    ports:
+      - "5433:5432"
+    volumes:
+      - auth_db_data:/var/lib/postgresql/data
+
+  user-db:
+    image: postgres:16
+    container_name: user-db
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: user_db
+    ports:
+      - "5434:5432"
+    volumes:
+      - user_db_data:/var/lib/postgresql/data
+
+volumes:
+  auth_db_data:
+  user_db_data:
